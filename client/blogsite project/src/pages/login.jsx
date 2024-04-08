@@ -24,7 +24,7 @@ const Login = () => {
 
       setCookies("access_token", result.data.token);
       window.localStorage.setItem("userID", result.data.userId);
-      navigate("/");
+      navigate("/create-post");
     } catch (error) {
       console.error(error);
     }

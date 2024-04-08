@@ -27,20 +27,41 @@ router.post('/', async(req, res) => {
 })
 
 router.put('/', async(req, res) => {
-    try{
-    const post = await PostsModel.findById(req.body.postId)
-    const user = await userModel.findById(req.body.userId)
-    user.savedPosts.push(post)
-    await user.save()
-    res.json({savedPosts: user.savedPosts})
-    }catch(err){
-        res.json(err)
-    }
-})
+    const postID = req.body.postID;
+    const userID = req.body.userID;
+    
+    try {
+        const post = await PostsModel.findById(postID);
+        const user = await userModel.findById(userID);
 
-router.get('/savedPosts/ids', async (req, res) => {
+        if (!post) {
+            console.log("Post not found:", postID);
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        if (!user) {
+            console.log("User not found:", userID);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Verifica se a propriedade savedPosts é um array, se não for, inicializa como um array vazio
+        if (!Array.isArray(user.savedPosts)) {
+            user.savedPosts = [];
+        }   
+
+        user.savedPosts.push(post);
+        await user.save();
+        res.status(201).json({ savedPosts: user.savedPosts });
+    } catch (err) {
+        console.error("Error saving post:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+router.get('/savedPosts/ids/:userId', async (req, res) => {
         try{
-            const user = await userModel.findById(req.body.userId)
+            const user = await userModel.findById(req.params.userId)
 
             res.json({savedPosts:user?.savedPosts})
 
@@ -51,10 +72,10 @@ router.get('/savedPosts/ids', async (req, res) => {
 })
 
 
-router.get('/savedPosts', async (req, res) => {
+router.get('/savedPosts/:userId', async (req, res) => {
     try{
-        const user = await userModel.findById(req.body.userId)
-        const savedPosts = await userModel.find({
+        const user = await userModel.findById(req.params.userId)    
+        const savedPosts = await PostsModel.find({
             _id:{$in: user.savedPosts}
         })
         res.json({savedPosts})

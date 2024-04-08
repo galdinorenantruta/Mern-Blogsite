@@ -23,7 +23,7 @@ const Navbar = () => {
       ) : (<>
             <Link to='/'>Home</Link>
             <Link to='/create-post'>new Post</Link>
-            <Link to='/my-post'>My Posts</Link>
+            <Link to='/my-posts'>My Posts</Link>
             <button onClick={logout} > Logout </button></>
         
       )}
